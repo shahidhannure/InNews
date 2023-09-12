@@ -24,26 +24,44 @@ cursor.execute('''
 ''')
 conn.commit()
 
-# Function to get user profile from the database
-def get_user_profile(username):
-    cursor.execute("SELECT * FROM user_profiles WHERE username=?", (username,))
-    user_data = cursor.fetchone()
-    if user_data:
-        return {
-            'username': user_data[0],
-            'password_hash': user_data[1],
-            'favorite_topics': user_data[2].split(',') if user_data[2] else [],
-            'favorite_sources': user_data[3].split(',') if user_data[3] else [],
-            'saved_articles': user_data[4].split(',') if user_data[4] else [],
-        }
-    else:
-        return None
+available_topics = [
+    'World News',
+    'National News',
+    'Business',
+    'Technology',
+    'Entertainment',
+    'Sports',
+    'Science',
+    'Health',
+]
 
-# Function to create or update a user profile in the database
-def create_or_update_user_profile(username, password_hash, favorite_topics, favorite_sources, saved_articles):
-    cursor.execute("INSERT OR REPLACE INTO user_profiles VALUES (?, ?, ?, ?, ?)",
-                   (username, password_hash, ','.join(favorite_topics), ','.join(favorite_sources), ','.join(saved_articles)))
-    conn.commit()
+logged_in_username = ""
+
+# Define the Streamlit app pages
+
+# Page 1: Authentication
+if not logged_in_username:
+    st.title("Authentication")
+    username = st.text_input("Username:")
+    password = st.text_input("Password:", type="password")
+
+    if st.button("Login"):
+        user_profile = get_user_profile(username)
+        if user_profile and user_profile['password_hash'] == hashlib.sha256(password.encode()).hexdigest():
+            logged_in_username = username
+            st.success(f"Welcome, {username}!")
+
+# Page 2: Main Application
+if logged_in_username:
+    st.title("Main Application")
+    st.write(f"Logged in as: {logged_in_username}")
+
+    # Display and edit favorite topics, sources, and saved articles
+    favorite_topics = st.multiselect("Favorite Topics:", available_topics, user_profile['favorite_topics'])
+    favorite_sources = st.multiselect("Favorite Sources:", available_sources, user_profile['favorite_sources'])
+
+    # Save the changes to the user's profile
+    create_or_update_user_profile(logged_in_username, user_profile['password_hash'], favorite_topics, favorite_sources, user_profile['saved_articles'])
     
 nltk.download('punkt')
 
