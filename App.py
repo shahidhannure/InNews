@@ -5,6 +5,46 @@ from urllib.request import urlopen
 from newspaper import Article
 import io
 import nltk
+import sqlite3
+import hashlib
+
+# Initialize SQLite database
+conn = sqlite3.connect('user_profiles.db')
+cursor = conn.cursor()
+
+# Create user profiles table if it doesn't exist
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS user_profiles (
+        username TEXT PRIMARY KEY,
+        password_hash TEXT,
+        favorite_topics TEXT,
+        favorite_sources TEXT,
+        saved_articles TEXT
+    )
+''')
+conn.commit()
+
+# Function to get user profile from the database
+def get_user_profile(username):
+    cursor.execute("SELECT * FROM user_profiles WHERE username=?", (username,))
+    user_data = cursor.fetchone()
+    if user_data:
+        return {
+            'username': user_data[0],
+            'password_hash': user_data[1],
+            'favorite_topics': user_data[2].split(',') if user_data[2] else [],
+            'favorite_sources': user_data[3].split(',') if user_data[3] else [],
+            'saved_articles': user_data[4].split(',') if user_data[4] else [],
+        }
+    else:
+        return None
+
+# Function to create or update a user profile in the database
+def create_or_update_user_profile(username, password_hash, favorite_topics, favorite_sources, saved_articles):
+    cursor.execute("INSERT OR REPLACE INTO user_profiles VALUES (?, ?, ?, ?, ?)",
+                   (username, password_hash, ','.join(favorite_topics), ','.join(favorite_sources), ','.join(saved_articles)))
+    conn.commit()
+    
 nltk.download('punkt')
 
 st.set_page_config(page_title='InNews🇮🇳: A Summarised News📰 Portal', page_icon='./Meta/newspaper.ico')
@@ -74,7 +114,41 @@ def display_news(list_of_news, news_quantity):
         if c >= news_quantity:
             break
 
+if not logged_in_username:
+    username = st.text_input("Username:")
+    password = st.text_input("Password:", type="password")
+    
+    if st.button("Register"):
+        # Check if the username is available
+        existing_user = get_user_profile(username)
+        if existing_user:
+            st.error("Username already exists. Please choose another username.")
+        else:
+            # Hash the password for security
+            password_hash = hashlib.sha256(password.encode()).hexdigest()
+            create_or_update_user_profile(username, password_hash, [], [], [])
+            st.success("Registration successful! You can now log in.")
+    
+    if st.button("Login"):
+        user_profile = get_user_profile(username)
+        if user_profile and user_profile['password_hash'] == hashlib.sha256(password.encode()).hexdigest():
+            logged_in_username = username
+            st.success(f"Welcome, {username}!")
+        else:
+            st.error("Invalid username or password. Please try again.")
 
+# User Profile Page
+if logged_in_username:
+    user_profile = get_user_profile(logged_in_username)
+    st.title(f"Welcome, {logged_in_username}!")
+
+    # Display and edit favorite topics, sources, and saved articles
+    favorite_topics = st.multiselect("Favorite Topics:", available_topics, user_profile['favorite_topics'])
+    favorite_sources = st.multiselect("Favorite Sources:", available_sources, user_profile['favorite_sources'])
+
+    # Save the changes to the user's profile
+    create_or_update_user_profile(logged_in_username, user_profile['password_hash'], favorite_topics, favorite_sources, user_profile['saved_articles'])
+    
 def run():
     st.title("InNews🇮🇳: A Summarised News📰")
     image = Image.open('./Meta/newspaper.png')
