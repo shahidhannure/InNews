@@ -113,42 +113,7 @@ def display_news(list_of_news, news_quantity):
         st.success("Published Date: " + news.pubDate.text)
         if c >= news_quantity:
             break
-
-if not logged_in_username:
-    username = st.text_input("Username:")
-    password = st.text_input("Password:", type="password")
-    
-    if st.button("Register"):
-        # Check if the username is available
-        existing_user = get_user_profile(username)
-        if existing_user:
-            st.error("Username already exists. Please choose another username.")
-        else:
-            # Hash the password for security
-            password_hash = hashlib.sha256(password.encode()).hexdigest()
-            create_or_update_user_profile(username, password_hash, [], [], [])
-            st.success("Registration successful! You can now log in.")
-    
-    if st.button("Login"):
-        user_profile = get_user_profile(username)
-        if user_profile and user_profile['password_hash'] == hashlib.sha256(password.encode()).hexdigest():
-            logged_in_username = username
-            st.success(f"Welcome, {username}!")
-        else:
-            st.error("Invalid username or password. Please try again.")
-
-# User Profile Page
-if logged_in_username:
-    user_profile = get_user_profile(logged_in_username)
-    st.title(f"Welcome, {logged_in_username}!")
-
-    # Display and edit favorite topics, sources, and saved articles
-    favorite_topics = st.multiselect("Favorite Topics:", available_topics, user_profile['favorite_topics'])
-    favorite_sources = st.multiselect("Favorite Sources:", available_sources, user_profile['favorite_sources'])
-
-    # Save the changes to the user's profile
-    create_or_update_user_profile(logged_in_username, user_profile['password_hash'], favorite_topics, favorite_sources, user_profile['saved_articles'])
-    
+            
 def run():
     st.title("InNews🇮🇳: A Summarised News📰")
     image = Image.open('./Meta/newspaper.png')
@@ -205,3 +170,41 @@ def run():
 
 
 run()
+
+
+
+if not logged_in_username:
+    username = st.text_input("Username:")
+    password = st.text_input("Password:", type="password")
+    
+    if st.button("Register"):
+        # Check if the username is available
+        existing_user = get_user_profile(username)
+        if existing_user:
+            st.error("Username already exists. Please choose another username.")
+        else:
+            # Hash the password for security
+            password_hash = hashlib.sha256(password.encode()).hexdigest()
+            create_or_update_user_profile(username, password_hash, [], [], [])
+            st.success("Registration successful! You can now log in.")
+    
+    if st.button("Login"):
+        user_profile = get_user_profile(username)
+        if user_profile and user_profile['password_hash'] == hashlib.sha256(password.encode()).hexdigest():
+            logged_in_username = username
+            st.success(f"Welcome, {username}!")
+        else:
+            st.error("Invalid username or password. Please try again.")
+
+# User Profile Page
+if logged_in_username:
+    user_profile = get_user_profile(logged_in_username)
+    st.title(f"Welcome, {logged_in_username}!")
+
+    # Display and edit favorite topics, sources, and saved articles
+    favorite_topics = st.multiselect("Favorite Topics:", available_topics, user_profile['favorite_topics'])
+    favorite_sources = st.multiselect("Favorite Sources:", available_sources, user_profile['favorite_sources'])
+
+    # Save the changes to the user's profile
+    create_or_update_user_profile(logged_in_username, user_profile['password_hash'], favorite_topics, favorite_sources, user_profile['saved_articles'])
+    
