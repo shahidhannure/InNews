@@ -17,3 +17,4 @@ def authenticate():
     authenticator.add_provider(google_oauth)
 
     return authenticator.authenticate()
+
