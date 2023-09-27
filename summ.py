@@ -149,7 +149,7 @@ def run():
 def summarize_text_with_api(input_text):
     try:
         api_url = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
-        headers = {"Authorization": "Bearer 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"}  # Replace with your Hugging Face API key
+        headers = {"Authorization": "Bearer "}  # Replace with your Hugging Face API key
         payload = {"inputs": input_text, "options": {"task": "summarization", "max_length": 300, "min_length": 150}}
         
         response = None
