@@ -8,3 +8,9 @@ jinja2>=3.0
 streamlit-authenticator
 authenticator
 transformers
+docx
+PyPDF2
+python-docx
+exception
+docx
+pdfreader
