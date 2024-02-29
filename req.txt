@@ -1,0 +1,15 @@
+streamlit
+beautifulsoup4
+newspaper3k
+transformers
+pytube
+youtube_transcript_api
+PyPDF2
+python-docx
+textract
+openai
+langchain-community
+langchain
+tiktoken
+python-dotenv
+faiss-cpu
