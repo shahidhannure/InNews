@@ -7,9 +7,9 @@ youtube_transcript_api
 PyPDF2
 python-docx
 textract
-openai
-langchain-community
+openai==0.28
 langchain
+langchain-community
 tiktoken
 python-dotenv
 faiss-cpu
