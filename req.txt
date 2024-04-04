@@ -1,5 +1,7 @@
 streamlit
 beautifulsoup4
+lxml_html_clean
+lxml
 newspaper3k
 transformers
 pytube
